@@ -1,6 +1,6 @@
 import assert from 'assert';
 import request from 'supertest';
-import {baseUrl, myAgent, requestAccount, waypoint} from "./steps";
+import {baseUrl, myAgent, requestNewAccount, waypoint} from "./steps";
 import Waypoint from "../model/waypoint";
 
 describe('Starting System', () => {
@@ -8,7 +8,7 @@ describe('Starting System', () => {
     let accessToken
 
     beforeAll(async () => {
-        const requestAccountResponse = await requestAccount()
+        const requestAccountResponse = await requestNewAccount()
         accessToken = requestAccountResponse.body.data.token;
         myAgentResponse = await myAgent(accessToken);
     });
