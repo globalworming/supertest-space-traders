@@ -14,6 +14,7 @@ export const acceptContractEndpoint = (contractId) => `/my/contracts/${contractI
  */
 export const waypoint = (waypoint) => `/systems/${waypoint.system}/waypoints/${waypoint.id}`
 export const waypoints = (waypoint, traitFilter) => `/systems/${waypoint.system}/waypoints?traits=${traitFilter}`
+export const shipyard = (waypoint) => `/systems/${waypoint.systemSymbol}/waypoints/${waypoint.symbol}/shipyard`
 
 
 /**
@@ -63,6 +64,15 @@ export const acceptContract = async (contractId, accessToken) => {
         .set('Authorization', 'Bearer ' + accessToken)
         .expect(200);
 };
+
+export const waypointsWithShipyard = async (agent) => {
+    await new Sleep(200)
+    return await request(baseUrl)
+        .get(waypoints(agent.headquatersWaypoint, "SHIPYARD"))
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Bearer ' + agent.accessToken)
+        .expect(200)
+}
 
 function Sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
