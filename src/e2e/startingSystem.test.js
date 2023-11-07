@@ -1,16 +1,13 @@
 import assert from 'assert';
 import request from 'supertest';
-import {baseUrl, myAgent, requestNewAccount, waypoint} from "./steps";
+import {baseUrl, createAgent, waypoint, waypoints} from "./steps";
 import Waypoint from "../model/waypoint";
 
 describe('Starting System', () => {
-    let myAgentResponse
-    let accessToken
+    let agent
 
     beforeAll(async () => {
-        const requestAccountResponse = await requestNewAccount()
-        accessToken = requestAccountResponse.body.data.token;
-        myAgentResponse = await myAgent(accessToken);
+        agent = await createAgent()
     });
 
 
@@ -18,12 +15,12 @@ describe('Starting System', () => {
         let waypointResponse
 
         beforeAll(async () => {
-            await assert.ok(myAgentResponse.body.data.headquarters.length > 0, 'body contains account id:\n' + JSON.stringify(myAgentResponse.body));
-            let headquartersWaypoint = new Waypoint(myAgentResponse.body.data.headquarters)
+            await assert.ok(agent.details.headquarters.length > 0, 'body contains account id:\n' + JSON.stringify(agent.details));
+            let headquartersWaypoint = new Waypoint(agent.details.headquarters)
             waypointResponse = await request(baseUrl)
                 .get(waypoint(headquartersWaypoint))
                 .set('Accept', 'application/json')
-                .set('Authorization', 'Bearer ' + accessToken)
+                .set('Authorization', 'Bearer ' + agent.accessToken)
                 .expect(200)
 
         });
@@ -36,6 +33,21 @@ describe('Starting System', () => {
             await assert.ok(waypointResponse.body.data.traits.length > 0, 'waypoint has trait:\n' + JSON.stringify(waypointResponse.body));
         });
     });
+
+    describe("a shipyard can be found", () => {
+        it("should be one in the starting system", async () => {
+            let headquartersWaypoint = new Waypoint(agent.details.headquarters)
+            const waypointsResponse = await request(baseUrl)
+                .get(waypoints(headquartersWaypoint, "SHIPYARD"))
+                .set('Accept', 'application/json')
+                .set('Authorization', 'Bearer ' + agent.accessToken)
+                .expect(200)
+
+            const orbitalStation = waypointsResponse.body.data.find(it => it.type === "ORBITAL_STATION")
+            const orbitalHasShipyardTrait = orbitalStation?.traits.some(it => it.symbol === "SHIPYARD")
+            await assert.ok(orbitalStation && orbitalHasShipyardTrait, 'waypoints contains an orbital with the shipyard trait:\n' + JSON.stringify(waypointsResponse.body));
+        })
+    })
 
 
 });

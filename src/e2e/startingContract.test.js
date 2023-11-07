@@ -25,7 +25,7 @@ describe("starting contract", () => {
         })
     })
 
-    describe("accepting the starting contract", () => {
+    describe("accepting it", () => {
         let accessToken;
         let contractsResponse
         beforeAll(async () => {
@@ -33,7 +33,7 @@ describe("starting contract", () => {
             contractsResponse = await listContracts(accessToken)
         });
 
-        it("accepting the starting contract", async () => {
+        it("can be accepted", async () => {
             const contractId = contractsResponse.body.data[0].id;
             await acceptContract(contractId, accessToken)
             const contractsResponseAfterAccepting = await listContracts(accessToken)

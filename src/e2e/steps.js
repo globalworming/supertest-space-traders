@@ -1,5 +1,6 @@
 import request from "supertest";
 import {v4 as uuidv4} from "uuid";
+import Agent from "../model/agent";
 
 export const baseUrl = 'https://api.spacetraders.io/v2'
 const register = `/register`
@@ -12,6 +13,19 @@ export const acceptContractEndpoint = (contractId) => `/my/contracts/${contractI
  * @param {Waypoint} waypoint
  */
 export const waypoint = (waypoint) => `/systems/${waypoint.system}/waypoints/${waypoint.id}`
+export const waypoints = (waypoint, traitFilter) => `/systems/${waypoint.system}/waypoints?traits=${traitFilter}`
+
+
+/**
+ * @returns {Promise<Agent>}
+ */
+export async function createAgent() {
+    const requestAccountResponse = await requestNewAccount()
+    const accessToken = requestAccountResponse.body.data.token;
+    const myAgentResponse = await myAgent(accessToken);
+    return new Agent(accessToken, myAgentResponse)
+}
+
 
 export const requestNewAccount = async () => await request(baseUrl)
     .post(register)
