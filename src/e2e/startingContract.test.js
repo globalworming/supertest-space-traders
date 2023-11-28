@@ -1,4 +1,4 @@
-import {acceptContract, listContracts, myAgent, requestNewAccount} from "./steps";
+import {acceptContract, listContracts, myAgent, requestNewAccountSuccessfully} from "./steps";
 import assert from "assert";
 
 describe("starting contract", () => {
@@ -7,7 +7,7 @@ describe("starting contract", () => {
         let accessToken;
         let contractsResponse
         beforeAll(async () => {
-            accessToken = (await requestNewAccount()).body.data.token;
+            accessToken = (await requestNewAccountSuccessfully()).body.data.token;
             contractsResponse = await listContracts(accessToken)
         });
 
@@ -29,7 +29,7 @@ describe("starting contract", () => {
         let accessToken;
         let contractsResponse
         beforeEach(async () => {
-            accessToken = (await requestNewAccount()).body.data.token;
+            accessToken = (await requestNewAccountSuccessfully()).body.data.token;
             contractsResponse = await listContracts(accessToken)
         })
 

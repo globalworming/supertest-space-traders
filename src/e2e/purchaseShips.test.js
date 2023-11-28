@@ -1,4 +1,4 @@
-import {baseUrl, createAgent, myAgent, requestNewAccount, shipyard, waypoint, waypointsWithShipyard} from "./steps";
+import {baseUrl, createAgent, myAgent, requestNewAccountSuccessfully, shipyard, waypoint, waypointsWithShipyard} from "./steps";
 import {Agent} from "../model/agent";
 import request from "supertest";
 import assert from "assert";

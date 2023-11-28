@@ -42,21 +42,23 @@ let status201 = function (res) {
  * @returns {Promise<Agent>}
  */
 export async function createAgent() {
-    const requestAccountResponse = await requestNewAccount()
+    const requestAccountResponse = await requestNewAccountSuccessfully()
     const accessToken = requestAccountResponse.body.data.token;
     const myAgentResponse = await myAgent(accessToken);
     return new Agent(accessToken, myAgentResponse)
 }
 
 
-export const requestNewAccount = async () => await request(baseUrl)
+export const requestNewAccount = (symbol = uuidv4().replaceAll("-", "").substring(0, 14)) => request(baseUrl)
     .post(register)
     .send({
         "faction": "COSMIC",
-        "symbol": uuidv4().replaceAll("-", "").substring(0, 14)
+        "symbol": symbol
     })
-    .set('Accept', 'application/json')
-    .expect(status201);
+    .set('Accept', 'application/json');
+
+export const requestNewAccountSuccessfully = async (symbol ) =>
+    await requestNewAccount(symbol).expect(status201);
 
 
 export const myAgent = async accessToken => {

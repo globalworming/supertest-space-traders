@@ -1,19 +1,23 @@
 import assert from 'assert';
 import request from 'supertest';
-import {baseUrl, myAgent, myAgentEndpoint, requestNewAccount} from "./steps";
+import {baseUrl, myAgent, myAgentEndpoint, requestNewAccount, requestNewAccountSuccessfully} from "./steps";
 
 
 describe('Auth', () => {
     describe('new account creation', () => {
         it('gives access token on successful registration', async () => {
-            const response = await requestNewAccount()
+            const response = await requestNewAccountSuccessfully()
             await assert.ok(response.body.data.token.length > 0, 'body contains token');
+        });
+
+        it('should fail when symbol is above 14 chars length', async () => {
+            await requestNewAccount("B".repeat(15)).expect(422)
         });
     });
 
     describe('account info', () => {
         it('shows account info given an access token', async () => {
-            const requestAccountResponse = await requestNewAccount()
+            const requestAccountResponse = await requestNewAccountSuccessfully()
             const accessToken = requestAccountResponse.body.data.token;
             const response = await myAgent(accessToken)
             await assert.ok(response.body.data.accountId.length > 0, 'body contains account id:\n' + JSON.stringify(response.body));
