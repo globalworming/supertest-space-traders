@@ -49,15 +49,19 @@ export async function createAgent() {
 }
 
 
-export const requestNewAccount = (symbol = uuidv4().replaceAll("-", "").substring(0, 14)) => request(baseUrl)
-    .post(register)
-    .send({
-        "faction": "COSMIC",
-        "symbol": symbol
-    })
-    .set('Accept', 'application/json');
+export const requestNewAccount = (
+    symbol = uuidv4().replaceAll("-", "").substring(0, 14),
+    faction = "COSMIC"
+) =>
+    request(baseUrl)
+        .post(register)
+        .send({
+            "faction": faction,
+            "symbol": symbol
+        })
+        .set('Accept', 'application/json');
 
-export const requestNewAccountSuccessfully = async (symbol ) =>
+export const requestNewAccountSuccessfully = async (symbol) =>
     await requestNewAccount(symbol).expect(status201);
 
 

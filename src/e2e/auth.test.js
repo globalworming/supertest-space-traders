@@ -19,6 +19,10 @@ describe('Auth', () => {
             const agentSymbol = response.body.data.agent.symbol
             await requestNewAccount(agentSymbol).expect(409)
         });
+
+        it('should fail when the faction doesn\'t exist', async () => {
+            await requestNewAccount(undefined ,"THIS_FACTION_IS_NOT_VALID").expect(422)
+        });
     });
 
     describe('account info', () => {
