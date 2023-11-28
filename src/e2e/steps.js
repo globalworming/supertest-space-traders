@@ -13,9 +13,30 @@ export const acceptContractEndpoint = (contractId) => `/my/contracts/${contractI
  * @param {Waypoint} waypoint
  */
 export const waypoint = (waypoint) => `/systems/${waypoint.system}/waypoints/${waypoint.id}`
+/**
+ * @param {Waypoint} waypoint
+ * @param {String} traitFilter
+ */
 export const waypoints = (waypoint, traitFilter) => `/systems/${waypoint.system}/waypoints?traits=${traitFilter}`
-export const shipyard = (waypoint) => `/systems/${waypoint.systemSymbol}/waypoints/${waypoint.symbol}/shipyard`
+/**
+ * @param {Waypoint} waypoint
+ */
+export const shipyard = (waypoint) => `/systems/${waypoint.system}/waypoints/${waypoint.symbol}/shipyard`
 
+const expectStatus = (res, number) => {
+    if (res.status !== number) {
+        console.error(JSON.stringify(res.body, undefined, 2))
+        return new Error("expected status code to be 200 but was " + res.status);
+    }
+};
+
+let status200 = function (res) {
+    return expectStatus(res, 200);
+};
+
+let status201 = function (res) {
+    return expectStatus(res, 201);
+};
 
 /**
  * @returns {Promise<Agent>}
@@ -35,7 +56,7 @@ export const requestNewAccount = async () => await request(baseUrl)
         "symbol": uuidv4().replaceAll("-", "").substring(0, 14)
     })
     .set('Accept', 'application/json')
-    .expect(201);
+    .expect(status201);
 
 
 export const myAgent = async accessToken => {
@@ -44,7 +65,7 @@ export const myAgent = async accessToken => {
         .get(myAgentEndpoint)
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + accessToken)
-        .expect(200);
+        .expect(status200);
 };
 
 export const listContracts = async accessToken => {
@@ -53,7 +74,7 @@ export const listContracts = async accessToken => {
         .get(myContractsEndpoint)
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + accessToken)
-        .expect(200);
+        .expect(status200);
 };
 
 export const acceptContract = async (contractId, accessToken) => {
@@ -62,7 +83,7 @@ export const acceptContract = async (contractId, accessToken) => {
         .post(acceptContractEndpoint(contractId))
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + accessToken)
-        .expect(200);
+        .expect(status200);
 };
 
 export const waypointsWithShipyard = async (agent) => {
@@ -71,7 +92,7 @@ export const waypointsWithShipyard = async (agent) => {
         .get(waypoints(agent.headquatersWaypoint, "SHIPYARD"))
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + agent.accessToken)
-        .expect(200)
+        .expect(status200)
 }
 
 function Sleep(milliseconds) {

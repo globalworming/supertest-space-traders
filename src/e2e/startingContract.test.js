@@ -20,7 +20,7 @@ describe("starting contract", () => {
             await assert.equal(contractsResponse.body.data[0].accepted, false, JSON.stringify(contractsResponse.body));
         })
 
-        it("should not accepted yet", async () => {
+        it("should not be accepted yet", async () => {
             await assert.equal(contractsResponse.body.data[0].fulfilled, false, JSON.stringify(contractsResponse.body));
         })
     })
@@ -28,26 +28,17 @@ describe("starting contract", () => {
     describe("accepting it", () => {
         let accessToken;
         let contractsResponse
-        beforeAll(async () => {
+        beforeEach(async () => {
             accessToken = (await requestNewAccount()).body.data.token;
             contractsResponse = await listContracts(accessToken)
-        });
+        })
 
-        it("can be accepted", async () => {
+        it("works", async () => {
             const contractId = contractsResponse.body.data[0].id;
             await acceptContract(contractId, accessToken)
             const contractsResponseAfterAccepting = await listContracts(accessToken)
             await assert.equal(contractsResponseAfterAccepting.body.data[0].accepted, true, JSON.stringify(contractsResponseAfterAccepting.body));
         })
-    })
-
-    describe("accepting it", () => {
-        let accessToken;
-        let contractsResponse
-        beforeAll(async () => {
-            accessToken = (await requestNewAccount()).body.data.token;
-            contractsResponse = await listContracts(accessToken)
-        });
 
         it("increases credits", async () => {
             const creditsBeforeAccepting = (await myAgent(accessToken)).body.data.credits
@@ -56,6 +47,5 @@ describe("starting contract", () => {
             const creditsAfterAccepting = (await myAgent(accessToken)).body.data.credits
             assert.ok(creditsAfterAccepting > creditsBeforeAccepting, `expect ${creditsAfterAccepting} to be higher than ${creditsBeforeAccepting}`)
         })
-
     })
 })

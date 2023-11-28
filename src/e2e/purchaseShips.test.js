@@ -2,6 +2,7 @@ import {baseUrl, createAgent, myAgent, requestNewAccount, shipyard, waypoint, wa
 import {Agent} from "../model/agent";
 import request from "supertest";
 import assert from "assert";
+import Waypoint from "../model/waypoint";
 
 describe('Purchase Ships', () => {
     let agent
@@ -14,7 +15,7 @@ describe('Purchase Ships', () => {
         it("shipyard list of ships is not empty", async () => {
             const waypointsWithShipyardResponse = await waypointsWithShipyard(agent);
             const orbitalWithShipyard = waypointsWithShipyardResponse.body.data.find(it => it.type === "ORBITAL_STATION")
-            let url = shipyard(orbitalWithShipyard);
+            let url = shipyard(new Waypoint(orbitalWithShipyard.symbol));
             const shipyardResponse = await request(baseUrl)
                 .get(url)
                 .set('Accept', 'application/json')
