@@ -13,6 +13,12 @@ describe('Auth', () => {
         it('should fail when symbol is above 14 chars length', async () => {
             await requestNewAccount("B".repeat(15)).expect(422)
         });
+
+        it('should fail when symbol is already taken', async () => {
+            const response = await requestNewAccountSuccessfully()
+            const agentSymbol = response.body.data.agent.symbol
+            await requestNewAccount(agentSymbol).expect(409)
+        });
     });
 
     describe('account info', () => {
