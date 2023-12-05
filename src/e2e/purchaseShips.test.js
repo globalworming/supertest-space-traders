@@ -1,4 +1,4 @@
-import {baseUrl, createAgent, myAgent, requestNewAccountSuccessfully, shipyard, waypoint, waypointsWithShipyard} from "./steps";
+import {baseUrl, createAgent, listShipTypesAvailable, shipyard, waypointsWithShipyard} from "./steps";
 import {Agent} from "../model/agent";
 import request from "supertest";
 import assert from "assert";
@@ -13,15 +13,10 @@ describe('Purchase Ships', () => {
 
     describe("list ships available", () => {
         it("shipyard list of ships is not empty", async () => {
-            const waypointsWithShipyardResponse = await waypointsWithShipyard(agent);
-            const orbitalWithShipyard = waypointsWithShipyardResponse.body.data.find(it => it.type === "ORBITAL_STATION")
-            let url = shipyard(new Waypoint(orbitalWithShipyard.symbol));
-            const shipyardResponse = await request(baseUrl)
-                .get(url)
-                .set('Accept', 'application/json')
-                .set('Authorization', 'Bearer ' + agent.accessToken)
-
-            assert.ok(shipyardResponse !== undefined)
+            const waypointWithShipyard = new Waypoint((await waypointsWithShipyard(agent)).body.data[0].symbol)
+            const shipTypesAvailableResponse = await listShipTypesAvailable(waypointWithShipyard, agent.accessToken);
+            assert.ok(shipTypesAvailableResponse.body.data.shipTypes.length >= 0,
+                'list of ships available should be bigger 0:\n' + JSON.stringify(shipTypesAvailableResponse.body))
         })
     })
 

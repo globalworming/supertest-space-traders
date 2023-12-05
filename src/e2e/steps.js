@@ -21,7 +21,7 @@ export const waypoints = (waypoint, traitFilter) => `/systems/${waypoint.system}
 /**
  * @param {Waypoint} waypoint
  */
-export const shipyard = (waypoint) => `/systems/${waypoint.system}/waypoints/${waypoint.symbol}/shipyard`
+export const shipyard = (waypoint) => `/systems/${waypoint.system}/waypoints/${waypoint.id}/shipyard`
 
 const expectStatus = (res, number) => {
     if (res.status !== number) {
@@ -99,6 +99,19 @@ export const waypointsWithShipyard = async (agent) => {
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + agent.accessToken)
         .expect(status200)
+}
+
+/**
+ * @param {Waypoint} waypoint
+ * @param {String} accessToken
+ * @returns {Promise<*>}
+ */
+export async function listShipTypesAvailable(waypoint, accessToken) {
+    await new Sleep(200)
+    return await request(baseUrl)
+        .get(shipyard(waypoint))
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Bearer ' + accessToken);
 }
 
 function Sleep(milliseconds) {
