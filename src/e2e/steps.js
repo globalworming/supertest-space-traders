@@ -1,11 +1,13 @@
 import request from "supertest";
 import {v4 as uuidv4} from "uuid";
 import Agent from "../model/agent";
+import Waypoint from "../model/waypoint";
 
 export const baseUrl = 'https://api.spacetraders.io/v2'
 const register = `/register`
 export const myAgentEndpoint = `/my/agent`
 export const myContractsEndpoint = `/my/contracts`
+export const myShipsEndpoint = `/my/ships`
 
 export const acceptContractEndpoint = (contractId) => `/my/contracts/${contractId}/accept`
 
@@ -101,6 +103,25 @@ export const waypointsWithShipyard = async (agent) => {
         .expect(status200)
 }
 
+export const getShips = async (agent) => {
+    await new Sleep(200)
+    return await request(baseUrl)
+        .get(myShipsEndpoint)
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Bearer ' + agent.accessToken)
+
+}
+
+export const buyShipSuccessfully = async (type, waypoint, agent) => {
+    await new Sleep(200)
+    return await request(baseUrl)
+        .post(myShipsEndpoint)
+        .send({"shipType": type,"waypointSymbol": waypoint.id})
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Bearer ' + agent.accessToken)
+        .expect(status201)
+}
+
 /**
  * @param {Waypoint} waypoint
  * @param {String} accessToken
@@ -113,6 +134,22 @@ export async function listShipTypesAvailable(waypoint, accessToken) {
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + accessToken);
 }
+
+
+export const findWaypointWithMiningDroneAvailable = async agent => {
+    let waypointWhereMiningDroneIsAvailable;
+    const shipyards = (await waypointsWithShipyard(agent)).body.data;
+    for (let i = 0; i < shipyards.length; i++) {
+        const shipyard = shipyards[i];
+        const waypointWithShipyard = new Waypoint(shipyard.symbol)
+        const shipTypesAvailableResponse = await listShipTypesAvailable(waypointWithShipyard, agent.accessToken);
+        if (shipTypesAvailableResponse.body.data.shipTypes.some(it => it.type === "SHIP_MINING_DRONE")) {
+            waypointWhereMiningDroneIsAvailable = waypointWithShipyard;
+            break;
+        }
+    }
+    return waypointWhereMiningDroneIsAvailable;
+};
 
 function Sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));

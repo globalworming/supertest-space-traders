@@ -1,22 +1,41 @@
-import {baseUrl, createAgent, listShipTypesAvailable, shipyard, waypointsWithShipyard} from "./steps";
+import {
+    buyShipSuccessfully,
+    createAgent,
+    findWaypointWithMiningDroneAvailable,
+    getShips,
+    listShipTypesAvailable,
+    waypointsWithShipyard
+} from "./steps";
 import {Agent} from "../model/agent";
-import request from "supertest";
 import assert from "assert";
 import Waypoint from "../model/waypoint";
 
-describe('Purchase Ships', () => {
+
+describe('Purchase Starter Ship', () => {
     let agent
 
     beforeAll(async () => {
         agent = await createAgent();
     });
 
-    describe("list ships available", () => {
-        it("shipyard list of ships is not empty", async () => {
-            const waypointWithShipyard = new Waypoint((await waypointsWithShipyard(agent)).body.data[0].symbol)
-            const shipTypesAvailableResponse = await listShipTypesAvailable(waypointWithShipyard, agent.accessToken);
-            assert.ok(shipTypesAvailableResponse.body.data.shipTypes.length >= 0,
-                'list of ships available should be bigger 0:\n' + JSON.stringify(shipTypesAvailableResponse.body))
+    describe("find mining drone ship", () => {
+        it("is available at some shipyard", async () => {
+            const waypoint = await findWaypointWithMiningDroneAvailable(agent);
+            assert.ok(waypoint !== undefined, "expect to find a waypoint");
+        })
+    })
+
+    describe("buy mining drone", () => {
+        it("can be bought successfully", async () => {
+            let waypointWhereMiningDroneIsAvailable = await findWaypointWithMiningDroneAvailable(agent);
+            await buyShipSuccessfully("SHIP_MINING_DRONE", waypointWhereMiningDroneIsAvailable, agent)
+        })
+        it("increases ship count", async () => {
+            const numberOfShipsBefore = (await getShips(agent)).body.data.length;
+            let waypointWhereMiningDroneIsAvailable = await findWaypointWithMiningDroneAvailable(agent);
+            await buyShipSuccessfully("SHIP_MINING_DRONE", waypointWhereMiningDroneIsAvailable, agent)
+            const numberOfShipsNow = (await getShips(agent)).body.data.length;
+            assert.ok(numberOfShipsNow === (numberOfShipsBefore + 1), "expect number of ships to be one more than before")
         })
     })
 
