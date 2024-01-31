@@ -1,14 +1,6 @@
-import {
-    buyShipSuccessfully,
-    createAgent,
-    findWaypointWithMiningDroneAvailable,
-    getShips,
-    listShipTypesAvailable,
-    waypointsWithShipyard
-} from "./steps";
+import {buyShip, buyShipSuccessfully, createAgent, findWaypointWithMiningDroneAvailable, getShips} from "./steps";
 import {Agent} from "../model/agent";
 import assert from "assert";
-import Waypoint from "../model/waypoint";
 
 
 describe('Purchase Starter Ship', () => {
@@ -37,6 +29,19 @@ describe('Purchase Starter Ship', () => {
             const numberOfShipsNow = (await getShips(agent)).body.data.length;
             assert.ok(numberOfShipsNow === (numberOfShipsBefore + 1), "expect number of ships to be one more than before")
         })
+    })
+
+    describe("buying a ship without money", () => {
+        it("should show an error", async () => {
+            let waypointWhereMiningDroneIsAvailable = await findWaypointWithMiningDroneAvailable(agent);
+            let buyShipResponse;
+            for (let i = 0; i < 10; i++) {
+                buyShipResponse = await buyShip("SHIP_MINING_DRONE", waypointWhereMiningDroneIsAvailable, agent);
+                if (buyShipResponse.status !== 201) break;
+            }
+            assert.equal(buyShipResponse.status, 400, JSON.stringify(buyShipResponse))
+            assert.ok(buyShipResponse.body.error.message.includes("insufficient funds"), "expect error message to include 'insufficient funds' but was " + buyShipResponse.body.error.message)
+        }, 10000)
     })
 
 });

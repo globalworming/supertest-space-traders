@@ -2,6 +2,7 @@ import request from "supertest";
 import {v4 as uuidv4} from "uuid";
 import Agent from "../model/agent";
 import Waypoint from "../model/waypoint";
+import assert from "assert";
 
 export const baseUrl = 'https://api.spacetraders.io/v2'
 const register = `/register`
@@ -112,14 +113,19 @@ export const getShips = async (agent) => {
 
 }
 
-export const buyShipSuccessfully = async (type, waypoint, agent) => {
+export const buyShip = async (type, waypoint, agent) => {
     await new Sleep(200)
     return await request(baseUrl)
         .post(myShipsEndpoint)
-        .send({"shipType": type,"waypointSymbol": waypoint.id})
+        .send({"shipType": type, "waypointSymbol": waypoint.id})
         .set('Accept', 'application/json')
-        .set('Authorization', 'Bearer ' + agent.accessToken)
-        .expect(status201)
+        .set('Authorization', 'Bearer ' + agent.accessToken);
+};
+
+export const buyShipSuccessfully = async (type, waypoint, agent) => {
+    let response = await buyShip(type, waypoint, agent);
+    assert.equal(response.status, 201, JSON.stringify(response, undefined, 2))
+    return response
 }
 
 /**
